@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EON Prospect Prioritization + Contact Intelligence</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e4e7ec;--accent:#2457d6;--soft:#eef4ff;--good:#067647;--warn:#b54708}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#101828;color:white;padding:22px 34px}.brand{font-size:22px;font-weight:750}.sub{opacity:.72;margin-top:4px;font-size:13px}
+main{max-width:1500px;margin:auto;padding:26px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.upload{padding:24px;display:flex;gap:22px;align-items:center;justify-content:space-between}.upload h2{margin:0 0 7px;font-size:18px}.upload p{margin:0;color:var(--muted);font-size:13px;max-width:760px;line-height:1.5}
+button,.filebtn{border:0;border-radius:9px;padding:11px 16px;font-weight:650;cursor:pointer;font-size:13px}.primary,.filebtn{background:var(--accent);color:white}.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+input[type=file]{display:none}.status{padding:10px 14px;border-radius:8px;background:var(--soft);color:#1849a9;font-size:13px;margin-top:15px;display:none}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:18px 0}.metric{padding:17px}.metric .k{font-size:12px;color:var(--muted)}.metric .v{font-size:25px;font-weight:750;margin-top:5px}
+.controls{display:flex;gap:10px;align-items:center;padding:15px;margin-bottom:14px;flex-wrap:wrap}.controls input,.controls select{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:white;color:var(--ink)}
+.controls input{min-width:260px}.grow{flex:1}.tablewrap{overflow:auto;max-height:620px}table{border-collapse:collapse;width:100%;font-size:12.5px}th{position:sticky;top:0;background:#f9fafb;z-index:2;text-align:left;color:#475467;font-weight:650;border-bottom:1px solid var(--line);padding:11px;white-space:nowrap}td{padding:11px;border-bottom:1px solid #f0f1f3;vertical-align:top;white-space:nowrap}tr:hover td{background:#fafcff}.company{font-weight:650}.score{font-weight:750}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-weight:650;font-size:11px}.t1{background:#dcfae6;color:#067647}.t2{background:#e0eaff;color:#3538cd}.t3{background:#fef0c7;color:#93370d}.t4{background:#f2f4f7;color:#475467}.reason{white-space:normal;min-width:240px;max-width:360px;color:#475467}.warning{color:var(--warn);white-space:normal;min-width:180px}.contactbtn{background:#eef4ff;color:#1849a9;border:1px solid #c7d7fe;padding:7px 10px;border-radius:7px;font-weight:650;cursor:pointer;white-space:nowrap}.contactbtn.unresolved{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.contactbtn.none{background:#f2f4f7;color:#475467;border-color:#e4e7ec}.modal{display:none;position:fixed;inset:0;background:rgba(16,24,40,.48);z-index:20;padding:32px;overflow:auto}.modal.open{display:block}.modalcard{max-width:820px;margin:4vh auto;background:white;border-radius:16px;padding:24px;box-shadow:0 20px 50px rgba(16,24,40,.25)}.modalhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.modalhead h2{margin:0 0 5px}.close{font-size:22px;background:transparent;padding:4px 8px}.contactgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.contactfield{border:1px solid var(--line);border-radius:10px;padding:12px}.contactfield .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.contactfield .v{margin-top:5px;font-size:14px;font-weight:600;line-height:1.4}.contactnote{background:#f9fafb;border:1px solid var(--line);padding:14px;border-radius:10px;line-height:1.5;font-size:13px}.alt{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px}.empty{padding:55px;text-align:center;color:var(--muted)}.foot{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.5}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.upload{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="brand">EON Prospect Prioritization + Contact Intelligence</div><div class="sub">Upload → Rank → Research contacts • Ranking model v1.0 + Agentic Contact Intelligence V1</div></header>
+<main>
+<section class="card upload">
+  <div><h2>Upload enriched company CSV</h2>
+  <p>The file should contain the researched company, stakeholder and trigger fields used by the EON ranking model. Unknown values are treated neutrally in Readiness and reduce Data Confidence.</p>
+  <div id="status" class="status"></div></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <label class="filebtn" for="file">Upload CSV</label><input id="file" type="file" accept=".csv,text/csv">
+    <button class="secondary" id="sample">Download CSV template</button>
+  </div>
+</section>
+
+<section class="metrics">
+ <div class="card metric"><div class="k">Eligible prospects</div><div class="v" id="mEligible">—</div></div>
+ <div class="card metric"><div class="k">Tier 1 prospects</div><div class="v" id="mTier1">—</div></div>
+ <div class="card metric"><div class="k">Average readiness</div><div class="v" id="mReady">—</div></div>
+ <div class="card metric"><div class="k">Average confidence</div><div class="v" id="mConf">—</div></div>
+ <div class="card metric"><div class="k">Excluded records</div><div class="v" id="mExcluded">—</div></div>
+</section>
+
+<section class="card">
+ <div class="controls">
+  <input id="search" placeholder="Search company…">
+  <select id="tier"><option value="">All tiers</option><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option><option>Tier 4</option></select>
+  <select id="segment"><option value="">All segments</option></select>
+  <select id="conf"><option value="">All confidence</option><option value="high">≥ 70%</option><option value="mid">50–69.9%</option><option value="low">< 50%</option></select>
+  <button class="primary" id="researchContacts" disabled>Research / Refresh Tier 1–2 Contacts</button><div class="grow"></div><button class="secondary" id="export" disabled>Export ranked CSV</button>
+ </div>
+ <div class="tablewrap"><div id="empty" class="empty">Upload a CSV to generate the ranked prospect list.</div>
+ <table id="table" style="display:none"><thead><tr>
+ <th>Rank</th><th>Company</th><th>Tier</th><th>Readiness</th><th>Confidence</th><th>Company Fit</th><th>Stakeholder Fit</th><th>Trigger Readiness</th><th>Segment</th><th>Why prioritize now</th><th>Structural fit</th><th>Contact Intelligence</th><th>Research status</th>
+ </tr></thead><tbody></tbody></table></div>
+</section>
+<div class="foot"><strong>V1.5:</strong> Uploading a valid CSV immediately ranks eligible companies and automatically runs Agentic Contact Intelligence for Tier 1–2 prospects. Contact Intelligence is a post-ranking layer and does not change Readiness, Confidence, Rank or Tier. It prioritizes verified current Training leadership, then specialized Training leadership, broader L&D/capability leadership, and practitioners as fallback. If a current person cannot be verified, the interface shows the ideal role instead of inventing a contact.<br><br><strong>Company research rules:</strong> Stakeholder fields mean a relevant, targetable EON stakeholder/function is evidenced — not merely that the company has employees in that function. For triggers, <strong>No</strong> means research supports absence of a qualifying current event; if research is inconclusive, use <strong>Unknown</strong>. Unknown is neutral for readiness but lowers confidence.<br><br>Readiness = 35% Company Fit + 40% Stakeholder Fit + 25% Trigger Readiness. Confidence is displayed separately and never changes Readiness or Tier. Tiers are assigned relative to the eligible companies in the uploaded file.</div>
+</main>
+<div id="contactModal" class="modal" aria-hidden="true"><div class="modalcard">
+ <div class="modalhead"><div><h2 id="ciCompany">Contact Intelligence</h2><div id="ciStatus" class="sub" style="color:#667085;opacity:1"></div></div><button class="close" id="ciClose">×</button></div>
+ <div id="ciBody"></div>
+</div></div>
+<script>
+const REQUIRED=["Company_Name","Revenue_USD_B","Employee_Count","Global_Operations","Segment","LD_Presence","Manager_Plus","Director_Plus","HSE_Presence","Operations_Presence","Project_FID_Commissioning","Hiring_Burst","Turnaround","MA_Acquisition","Incident_Regulator","New_Leader","Audit_Cycle"];
+let ranked=[];
+const CONTACT_API_URL="http://localhost:8787/api/contact-research";
+const CONTACTS={};
+function contactFor(company){return CONTACTS[company]||null;}
+
+function parseCSV(text){
+ let rows=[], row=[], field="", q=false;
+ for(let i=0;i<text.length;i++){let c=text[i],n=text[i+1];
+  if(c=='"'){if(q&&n=='"'){field+='"';i++;}else q=!q;}
+  else if(c==','&&!q){row.push(field);field="";}
+  else if((c=='\n'||c=='\r')&&!q){if(c=='\r'&&n=='\n')i++;row.push(field);field="";if(row.some(x=>x.trim()!==""))rows.push(row);row=[];}
+  else field+=c;
+ }
+ if(field.length||row.length){row.push(field);rows.push(row);}
+ if(!rows.length)return [];
+ const h=rows[0].map(x=>x.trim());
+ return rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]??"").trim()])));
+}
+const norm=v=>(v??"").trim().toLowerCase();
+function bin(v){let x=norm(v); if(["yes","y","1","true"].includes(x))return 100;if(["no","n","0","false"].includes(x))return 0;return 50}
+function knownBin(v){return ["yes","y","1","true","no","n","0","false"].includes(norm(v))}
+function num(v){let x=parseFloat(String(v??"").replace(/[$,\s]/g,""));return Number.isFinite(x)?x:null}
+function revenue(v){let x=num(v);if(x===null)return 50;if(x<.1)return 20;if(x<.5)return 40;if(x<2)return 60;if(x<10)return 80;return 100}
+function employees(v){let x=num(v);if(x===null)return 50;if(x<250)return 20;if(x<1000)return 40;if(x<5000)return 60;if(x<10000)return 80;return 100}
+function segmentScore(v){
+ let x=norm(v);
+ if(!x||x==="unknown")return 50;
+ if(x.includes("oil")&&x.includes("gas"))return 100;
+ if(x.includes("mining")||x.includes("metal"))return 90;
+ if(x.includes("industrial")||x.includes("manufactur")||x.includes("machinery")||x.includes("automotive")||x.includes("electrical")||x.includes("electronic")||x.includes("aerospace"))return 75;
+ if(x.includes("health")||x.includes("pharma")||x.includes("var")||x.includes("adjacent"))return 60;
+ return 50;
+}
+function eligible(r){let x=norm(r.Eligible_For_Scoring);return !["no","n","0","false"].includes(x)}
+function score(r){
+ const rev=revenue(r.Revenue_USD_B), emp=employees(r.Employee_Count), glob=bin(r.Global_Operations), seg=segmentScore(r.Segment);
+ const ld=bin(r.LD_Presence), man=bin(r.Manager_Plus), dir=bin(r.Director_Plus), hse=bin(r.HSE_Presence), ops=bin(r.Operations_Presence);
+ const proj=bin(r.Project_FID_Commissioning), hire=bin(r.Hiring_Burst), turn=bin(r.Turnaround), ma=bin(r.MA_Acquisition), inc=bin(r.Incident_Regulator);
+ const cf=.30*rev+.30*emp+.15*glob+.25*seg;
+ const sf=.35*ld+.20*man+.25*dir+.10*hse+.10*ops;
+ const tr=.35*proj+.30*hire+.15*turn+.15*ma+.05*inc;
+ const readiness=.35*cf+.40*sf+.25*tr;
+ const companyKnown=[num(r.Revenue_USD_B)!==null,num(r.Employee_Count)!==null,knownBin(r.Global_Operations),!!norm(r.Segment)&&norm(r.Segment)!=="unknown"].filter(Boolean).length/4*100;
+ const stakeKnown=["LD_Presence","Manager_Plus","Director_Plus","HSE_Presence","Operations_Presence"].filter(k=>knownBin(r[k])).length/5*100;
+ const trigKnown=["Project_FID_Commissioning","Hiring_Burst","Turnaround","MA_Acquisition","Incident_Regulator","New_Leader","Audit_Cycle"].filter(k=>knownBin(r[k])).length/7*100;
+ const confidence=.40*companyKnown+.30*stakeKnown+.30*trigKnown;
+ let triggerReasons=[];
+ const addTrigger=(v,priority,label)=>{if(v===100)triggerReasons.push([priority,label])};
+ addTrigger(proj,5,"Active project / FID / commissioning");
+ addTrigger(hire,4,"Hiring activity");
+ addTrigger(turn,3,"Turnaround / transformation");
+ addTrigger(ma,2,"Recent M&A");
+ addTrigger(inc,1,"Incident / regulatory event");
+ triggerReasons.sort((a,b)=>b[0]-a[0]);
+
+ let structuralReasons=[];
+ const addStructural=(delta,label)=>{if(delta>0)structuralReasons.push([delta,label])};
+ addStructural(.40*.35*(ld-50),"Targetable L&D");
+ addStructural(.40*.25*(dir-50),"Director+ access");
+ addStructural(.40*.20*(man-50),"Manager+ access");
+ addStructural(.35*.30*(rev-50),"Large revenue");
+ addStructural(.35*.30*(emp-50),"Large workforce");
+ addStructural(.35*.25*(seg-50),"Strong industry fit");
+ addStructural(.35*.15*(glob-50),"Global operations");
+ addStructural(.40*.10*(hse-50),"Targetable HSE / Safety");
+ addStructural(.40*.10*(ops-50),"Targetable Operations");
+ structuralReasons.sort((a,b)=>b[0]-a[0]);
+
+ let warnings=[];
+ if(num(r.Revenue_USD_B)===null)warnings.push("Revenue unknown");
+ if(num(r.Employee_Count)===null)warnings.push("Employees unknown");
+ if(!knownBin(r.Global_Operations))warnings.push("Global status unknown");
+ if(stakeKnown<60)warnings.push("Low stakeholder coverage");
+ warnings.push(`Trigger evidence: ${Math.round(trigKnown/100*7)}/7 researched (${Math.round(trigKnown)}%)`);
+ if(confidence<50)warnings.push("Low overall confidence");
+ const whyNow=triggerReasons.slice(0,3).map(x=>x[1]).join(" · ")||"No verified current trigger";
+ const structuralFit=structuralReasons.slice(0,3).map(x=>x[1]).join(" · ")||"No strong structural driver";
+ return {...r,Company_Fit:cf,Stakeholder_Fit:sf,Trigger_Readiness:tr,Readiness:readiness,Data_Confidence:confidence,Why_Prioritize_Now:whyNow,Structural_Fit:structuralFit,Top_Reasons:whyNow,Research_Warnings:warnings.join(" · ")||"—"};
+}
+function assignTiers(a){
+ a.sort((x,y)=>y.Readiness-x.Readiness || String(x.Company_Name).localeCompare(String(y.Company_Name)));
+ const n=a.length;
+ a.forEach((r,i)=>{r.Rank=i+1;let p=(i+1)/n;r.Tier=p<=.10?"Tier 1":p<=.30?"Tier 2":p<=.60?"Tier 3":"Tier 4"});
+}
+function fmt(x){return Number(x).toFixed(1)}
+function render(){
+ let q=norm(document.getElementById("search").value), t=document.getElementById("tier").value, s=document.getElementById("segment").value, c=document.getElementById("conf").value;
+ let rows=ranked.filter(r=>(!q||norm(r.Company_Name).includes(q))&&(!t||r.Tier===t)&&(!s||r.Segment===s)&&(!c||(c==="high"&&r.Data_Confidence>=70)||(c==="mid"&&r.Data_Confidence>=50&&r.Data_Confidence<70)||(c==="low"&&r.Data_Confidence<50)));
+ let tb=document.querySelector("#table tbody");tb.innerHTML="";
+ rows.forEach(r=>{let tr=document.createElement("tr");let tc=r.Tier.replace("Tier ","t").toLowerCase();tr.innerHTML=`<td>${r.Rank}</td><td class="company">${esc(r.Company_Name)}</td><td><span class="pill ${tc}">${r.Tier}</span></td><td class="score">${fmt(r.Readiness)}</td><td>${fmt(r.Data_Confidence)}%</td><td>${fmt(r.Company_Fit)}</td><td>${fmt(r.Stakeholder_Fit)}</td><td>${fmt(r.Trigger_Readiness)}</td><td>${esc(r.Segment||"Unknown")}</td><td class="reason">${esc(r.Why_Prioritize_Now)}</td><td class="reason">${esc(r.Structural_Fit)}</td><td>${contactCell(r.Company_Name)}</td><td class="warning">${esc(r.Research_Warnings)}</td>`;tb.appendChild(tr)});
+ document.querySelectorAll(".contactbtn[data-company]").forEach(b=>b.onclick=()=>showContact(b.dataset.company));
+}
+
+function contactCell(company){let c=contactFor(company);if(!c)return `<button class="contactbtn none" data-company="${esc(company)}">Not researched</button>`;if(c.status==="Verified Contact Found")return `<button class="contactbtn" data-company="${esc(company)}">${esc(c.name)}</button>`;return `<button class="contactbtn unresolved" data-company="${esc(company)}">Ideal role found</button>`}
+function urlList(urls){
+ if(!urls||!urls.length)return "";
+ return `<div class="alt"><strong>Evidence</strong><br>${urls.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">Source ${i+1}</a>`).join(" · ")}</div>`;
+}
+function showContact(company){
+ let c=contactFor(company),body=document.getElementById("ciBody");
+ document.getElementById("ciCompany").textContent=company;
+ document.getElementById("ciStatus").textContent=c?c.status:"Not researched";
+ if(!c){
+  body.innerHTML=`<div class="contactnote" style="margin-top:18px">Contact research has not been run for this company. The automatic pass focuses on Tier 1–2 prospects.</div>`;
+ }else{
+  let primary=c.name?esc(c.name):"No verified individual";
+  let role=c.title||c.ideal_role||"—";
+  let alts=(c.alternatives||[]).map(a=>`<div class="alt"><strong>${esc(a.name||"Alternative")}</strong> — ${esc(a.title||"—")}<br><span style="color:#667085">${esc(a.icp_level||"—")} · ${esc(a.why_selected||"")}</span>${urlList(a.evidence_urls||[])}</div>`).join("");
+  body.innerHTML=`<div class="contactgrid">
+   <div class="contactfield"><div class="k">Recommended contact</div><div class="v">${primary}</div></div>
+   <div class="contactfield"><div class="k">Current / ideal role</div><div class="v">${esc(role)}</div></div>
+   <div class="contactfield"><div class="k">ICP level</div><div class="v">${esc(c.icp||"—")}</div></div>
+   <div class="contactfield"><div class="k">Evidence confidence</div><div class="v">${esc(c.confidence||"—")}</div></div>
+   <div class="contactfield"><div class="k">Employment status</div><div class="v">${esc(c.employment||"—")}</div></div>
+   <div class="contactfield"><div class="k">Researched</div><div class="v">${esc(c.researched_at||"—")}</div></div>
+  </div>
+  <div class="contactnote"><strong>Why selected</strong><br>${esc(c.why||"—")}</div>
+  ${urlList(c.evidence_urls||[])}
+  ${c.ideal_role?`<div class="alt"><strong>Stronger / ideal role still unresolved:</strong> ${esc(c.ideal_role)}</div>`:""}
+  ${alts?`<div class="alt"><strong>Alternative contacts</strong>${alts}</div>`:""}
+  ${c.notes?`<div class="alt"><strong>Decision note:</strong> ${esc(c.notes)}</div>`:""}`;
+ }
+ let m=document.getElementById("contactModal");m.classList.add("open");m.setAttribute("aria-hidden","false");
+}
+document.getElementById("ciClose").onclick=()=>document.getElementById("contactModal").classList.remove("open");document.getElementById("contactModal").onclick=e=>{if(e.target.id==="contactModal")e.currentTarget.classList.remove("open")};
+async function researchOneCompany(company){
+ const row=ranked.find(r=>r.Company_Name===company)||{};
+ const resp=await fetch(CONTACT_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company_name:company,website:row.Website||"",segment:row.Segment||"",country:row.Country||""})});
+ if(!resp.ok)throw new Error(`Research service returned ${resp.status}`);
+ const x=await resp.json(),pc=x.primary_contact||{};
+ CONTACTS[company]={status:x.contact_research_status||"Completed",name:pc.name||null,title:pc.title||null,category:pc.contact_category||null,icp:pc.icp_level||null,employment:pc.current_employment_status||"Unresolved",confidence:pc.evidence_confidence||x.evidence_confidence||null,why:pc.why_selected||x.decision_reason||null,ideal_role:x.ideal_role||null,researched_at:x.researched_at||null,notes:x.decision_reason||x.research_notes||null,alternatives:x.alternative_contacts||[],evidence_urls:pc.evidence_urls||[],sources:x.sources||[]};
+ return x;
+}
+document.getElementById("researchContacts").onclick=async()=>{
+ if(!ranked.length)return;
+ const btn=document.getElementById("researchContacts"),targets=ranked.filter(r=>["Tier 1","Tier 2"].includes(r.Tier));
+ btn.disabled=true;btn.textContent="Researching…";let ok=0,fail=0;
+ setStatus(`Researching contacts for ${targets.length} Tier 1–2 companies. Company scores will not change.`);
+ for(const r of targets){try{await researchOneCompany(r.Company_Name);ok++;render();setStatus(`Contact research: ${ok} completed${fail?`, ${fail} failed`:""} of ${targets.length}.`);}catch(err){fail++;CONTACTS[r.Company_Name]={status:"Research Failed",name:null,title:null,category:null,icp:null,employment:"Unresolved",confidence:"Low",why:"Automated research could not be completed.",ideal_role:null,researched_at:new Date().toISOString().slice(0,10),notes:String(err.message||err)};render();}}
+ btn.disabled=false;btn.textContent="Research / Refresh Tier 1–2 Contacts";setStatus(`Contact research finished: ${ok} completed, ${fail} failed. Ranking model unchanged.`,fail>0&&ok===0);
+};
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function setStatus(msg,bad=false){let e=document.getElementById("status");e.style.display="block";e.textContent=msg;e.style.background=bad?"#fef3f2":"#eef4ff";e.style.color=bad?"#b42318":"#1849a9"}
+document.getElementById("file").addEventListener("change",async e=>{
+ let f=e.target.files[0];if(!f)return;let data=parseCSV(await f.text());if(!data.length){setStatus("The CSV is empty or could not be parsed.",true);return}
+ let cols=Object.keys(data[0]);let missing=REQUIRED.filter(x=>!cols.includes(x));
+ if(missing.length){setStatus("Missing required columns: "+missing.join(", "),true);return}
+ let elig=data.filter(eligible);ranked=elig.map(score);assignTiers(ranked);
+ document.getElementById("mEligible").textContent=ranked.length;
+ document.getElementById("mTier1").textContent=ranked.filter(x=>x.Tier==="Tier 1").length;
+ document.getElementById("mReady").textContent=ranked.length?fmt(ranked.reduce((a,b)=>a+b.Readiness,0)/ranked.length):"—";
+ document.getElementById("mConf").textContent=ranked.length?fmt(ranked.reduce((a,b)=>a+b.Data_Confidence,0)/ranked.length)+"%":"—";
+ document.getElementById("mExcluded").textContent=data.length-elig.length;
+ let segs=[...new Set(ranked.map(x=>x.Segment).filter(Boolean))].sort();let sel=document.getElementById("segment");sel.innerHTML='<option value="">All segments</option>'+segs.map(x=>`<option>${esc(x)}</option>`).join("");
+ document.getElementById("empty").style.display="none";document.getElementById("table").style.display="table";document.getElementById("export").disabled=false;document.getElementById("researchContacts").disabled=false;
+ setStatus(`Loaded ${data.length} records. ${ranked.length} eligible companies were scored and ranked. Starting Contact Intelligence for Tier 1–2 prospects…`);
+ render();
+ setTimeout(()=>document.getElementById("researchContacts").click(),150);
+});
+["search","tier","segment","conf"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+function csvEscape(v){v=String(v??"");return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function download(name,text){let b=new Blob([text],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+document.getElementById("sample").onclick=()=>{
+ const h=["Company_Name","Website","Country","Eligible_For_Scoring","Exclusion_Reason","Revenue_USD_B","Employee_Count","Global_Operations","Segment","LD_Presence","Manager_Plus","Director_Plus","HSE_Presence","Operations_Presence","Project_FID_Commissioning","Hiring_Burst","Turnaround","MA_Acquisition","Incident_Regulator","New_Leader","Audit_Cycle","Research_Date","Scoring_As_Of_Date","Research_Evidence","Source_URLs"];
+ download("EON_New_Company_Template.csv",h.join(",")+"\n");
+};
+document.getElementById("export").onclick=()=>{
+ const extra=["Rank","Tier","Readiness","Data_Confidence","Company_Fit","Stakeholder_Fit","Trigger_Readiness","Top_Reasons","Research_Warnings"];
+ const base=Object.keys(ranked[0]).filter(k=>!extra.includes(k)&&!["Company_Fit","Stakeholder_Fit","Trigger_Readiness","Readiness","Data_Confidence","Top_Reasons","Research_Warnings","Rank","Tier"].includes(k));
+ const h=[...extra,...base];let lines=[h.join(",")];
+ const contactCols=["Recommended_Contact","Contact_Title","Contact_ICP_Level","Contact_Status","Contact_Evidence_Confidence","Ideal_Role","Contact_Researched_At"];h.push(...contactCols);lines[0]=h.join(",");
+ ranked.forEach(r=>{let c=contactFor(r.Company_Name)||{};let vals={Recommended_Contact:c.name||"",Contact_Title:c.title||"",Contact_ICP_Level:c.icp||"",Contact_Status:c.status||"Not researched",Contact_Evidence_Confidence:c.confidence||"",Ideal_Role:c.ideal_role||"",Contact_Researched_At:c.researched_at||""};lines.push(h.map(k=>csvEscape(k in vals?vals[k]:(typeof r[k]==="number"?Math.round(r[k]*100)/100:r[k]))).join(","))});
+ download("EON_Ranked_Prospects.csv",lines.join("\n"));
+};
+</script>
+</body></html>

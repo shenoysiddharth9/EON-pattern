@@ -1,0 +1,15 @@
+parser_version,extraction_timestamp,source_pdf_filename,company_id,company_name,issue_id,field_name,issue_type,description,report_native_fragment,page_number,resolution_proposed
+1.0.0,2026-09-16T05:28:45.768787+00:00,Kinder-Morgan-Pattern-Report-4.pdf,COMP-TMP-DDA35B,Unknown,ISS-TMPDDA3-01,line_of_work,PARSING_FAILED,Line of work card and description pattern not found,"E O N  A I  V E N T U R E S    ·    T H E  P A T T E R N  R E P O R T
+Kinder Morgan
+Your own safety record, assembled in one place — and set beside what
+you have said publicly about the work ahead.
+2015–2024
+Window examined
+1
+Public sources cited
+0
+Records proven
+0/7
+Answered by your record
+WHERE TH",1,Review company description.
+1.0.0,2026-09-16T05:28:45.768787+00:00,Kinder-Morgan-Pattern-Report-4.pdf,COMP-TMP-DDA35B,Unknown,ISS-TMPDDA3-02,forward_signals_count,DISCREPANCY,"Report build statistics state 6 forward-looking press accounts, but only 4 cards are rendered under 'WHAT YOU ARE BUILDING'.",Page 2 has 4 cards; Page 8/10 states 'Press: 6 accounts of what they are building or hiring for.',2,Preserve 4 extracted signals; flag 2 unaccounted background signals for analyst verification.

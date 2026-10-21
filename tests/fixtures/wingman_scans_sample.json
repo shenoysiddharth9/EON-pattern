@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "scans": [
+    {
+      "id": 101,
+      "company": "Apex Energy Systems",
+      "segment": "oil and gas",
+      "tier": 1,
+      "triggers": [
+        {
+          "type": "project_fid_commissioning",
+          "value": "Approved final investment decision for LNG liquefaction train expansion with targeted mechanical completion in Q3 2027.",
+          "source": "https://example.com/press/apex-lng-fid-announcement",
+          "date": "2026-08-15"
+        },
+        {
+          "type": "hiring_burst",
+          "value": "Posted 45 frontline operations, control-room console, and maintenance technician roles for plant pre-commissioning.",
+          "source": "https://example.com/careers/apex-operations-hiring",
+          "date": "2026-08-28"
+        }
+      ],
+      "notes": "Verified facility operator with deepwater LNG terminal assets. Active pre-startup contractor ramp underway.",
+      "scanned_at": "2026-09-15T14:22:10.450Z",
+      "contacts_held": 12
+    },
+    {
+      "id": 102,
+      "company": "Beacon Chemical Technologies",
+      "segment": "chemicals",
+      "tier": 2,
+      "triggers": [
+        {
+          "type": "turnaround",
+          "value": "Scheduled 45-day major site turnaround and cracker revamp announced for Gulf Coast petrochemical complex.",
+          "source": "Industrial Info Resources Trade Bulletin",
+          "date": "2026-07-20"
+        }
+      ],
+      "notes": "Operator profile confirmed. Trade press citation verified; public web URL not indexed.",
+      "scanned_at": "2026-09-12T09:15:00.120Z",
+      "contacts_held": 4
+    },
+    {
+      "id": 103,
+      "company": "Crestview Engineering Partners",
+      "segment": "diversified industrial",
+      "tier": 2,
+      "triggers": [
+        {
+          "type": "new_leader",
+          "value": "Appointed new Global Vice President of Health, Safety, and Environment to lead digital safety transformation.",
+          "source": "https://example.com/news/crestview-appoints-vp-hse",
+          "date": null
+        }
+      ],
+      "notes": "Third-party engineering consultancy and advisory service firm. Potential profile verification required.",
+      "scanned_at": "2026-09-10T11:45:22.000Z",
+      "contacts_held": 2
+    },
+    {
+      "id": 104,
+      "company": "Delta Midstream Logistics",
+      "segment": "oil and gas",
+      "tier": 3,
+      "triggers": [],
+      "notes": "Pipeline transportation operator. No live capital projects or major turnaround milestones detected during sweep.",
+      "scanned_at": "2026-09-08T16:04:15.310Z",
+      "contacts_held": 7
+    },
+    {
+      "id": 105,
+      "company": "Epsilon Power Operations",
+      "segment": null,
+      "tier": 3,
+      "triggers": [],
+      "notes": null,
+      "scanned_at": "2026-08-28T08:00:00.000Z",
+      "contacts_held": 0
+    }
+  ]
+}
